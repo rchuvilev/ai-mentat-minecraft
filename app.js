@@ -119,6 +119,16 @@ async function refreshServer() {
   show('server-restart-btn', status.running);
   show('server-install-btn', !status.installed);
 
+  // An uninstalled server cannot start. Offering Start as an equally weighted
+  // primary button next to Install meant the leftmost, most obvious action was
+  // the one that could only fail: serverStart() spawns against an image that
+  // does not exist and the user gets an error they could have been spared.
+  // Same rule as rowSupport() refusing a listener that can never fire — do not
+  // offer an action that cannot succeed.
+  const startBtn = $('server-start-btn');
+  startBtn.disabled = !status.installed;
+  startBtn.title = status.installed ? '' : 'Install the server first';
+
   renderPlayers(status.players || []);
   renderProperties(status.properties || {});
 }
