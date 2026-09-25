@@ -39,11 +39,6 @@ document.querySelectorAll('.tab-bar button').forEach((btn) => {
   });
 });
 
-$('logo-link').addEventListener('click', (e) => {
-  e.preventDefault();
-  api.openExternal('https://hexstack.app');
-});
-
 // ─── Server tab ───────────────────────────────────────────────────────────
 
 const PROPERTY_INPUTS = {
