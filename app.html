@@ -10,6 +10,9 @@
   <title>Minecraft Mentat</title>
   <link rel="stylesheet" href="sdk/ui/base.css">
   <link rel="stylesheet" href="app.css">
+  <!-- Before app.js, which builds the flow on load. -->
+  <script src="sdk/ui/steps.js"></script>
+  <script src="sdk/ui/modal.js"></script>
   <link rel="stylesheet" href="sdk/vendor/xterm.css">
 </head>
 <body>
@@ -18,17 +21,17 @@
   <span class="top-bar__title">Minecraft Mentat</span>
   <div class="top-bar__spacer"></div>
   <span class="top-bar__runtime" id="runtime-badge"></span>
+  <button type="button" class="top-bar__icon" id="icon-mcp">Claude Code</button>
+  <button type="button" class="top-bar__icon" id="icon-tunnel">Tunnel</button>
+  <button type="button" class="top-bar__icon" id="icon-faq">FAQ</button>
 </div>
 
-<div class="tab-bar">
-  <button class="active" data-tab="server">Server</button>
-  <button data-tab="macros">Macros</button>
-  <button data-tab="mcp">Claude Code MCP</button>
-  <button data-tab="tunnel">Cloudflare Tunnel</button>
-  <button data-tab="faq">FAQ</button>
-</div>
+<!-- One screen: run the server, then write macros against it.
+     Claude Code, the tunnel and the FAQ open from the header — none of
+     them is a stage of the flow. -->
+<div id="flow"></div>
 
-<div class="tab-content">
+<div class="tab-content" id="content-source" hidden>
 
   <!-- ── Tab 1: Server ──────────────────────────────────────────────── -->
   <div id="tab-server" class="panel active">

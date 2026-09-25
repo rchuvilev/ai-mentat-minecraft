@@ -30,14 +30,41 @@ function show(id, visible) {
 
 // ─── Tabs ─────────────────────────────────────────────────────────────────
 
-document.querySelectorAll('.tab-bar button').forEach((btn) => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.tab-bar button').forEach((b) => b.classList.remove('active'));
-    document.querySelectorAll('.panel').forEach((p) => p.classList.remove('active'));
-    btn.classList.add('active');
-    $(`tab-${btn.dataset.tab}`).classList.add('active');
-  });
+// ─── The flow ─────────────────────────────────────────────────────────────
+//
+// Two steps, not five tabs. Macros run against a live server, so they are not
+// a peer of Server — writing one before the world exists is meaningless. The
+// MCP registration, the tunnel and the FAQ are not stages at all and open from
+// the header instead.
+const flow = HexKit.createSteps($('flow'), {
+  steps: [
+    { id: 'server', title: 'Bedrock server', hint: 'Installs and runs the world' },
+    { id: 'macros', title: 'Macros',         hint: 'Rules that fire on what the server prints' },
+  ],
 });
+
+// Moved, not rebuilt: every id and handler inside these panels keeps working.
+flow.body('server').appendChild($('tab-server'));
+flow.body('macros').appendChild($('tab-macros'));
+$('tab-server').classList.add('active');
+$('tab-macros').classList.add('active');
+flow.body('server').classList.add('steps__body--fill');
+flow.body('macros').classList.add('steps__body--fill');
+
+for (const [icon, title, panel] of [
+  ['icon-mcp', 'Claude Code MCP', '#tab-mcp .panel-scroll'],
+  ['icon-tunnel', 'Cloudflare Tunnel', '#tab-tunnel .panel-scroll'],
+  ['icon-faq', 'FAQ', '#tab-faq .panel-scroll'],
+]) {
+  const body = document.querySelector(panel);
+  if (body) $(icon).addEventListener('click', () => HexKit.openModal({ title, content: body }));
+}
+
+// Macros are reachable from the start — someone with a running world should
+// not walk the server step again. Setting a step active also opens it, so
+// re-open the server step straight after.
+flow.setState('macros', 'active');
+flow.open('server');
 
 // ─── Server tab ───────────────────────────────────────────────────────────
 
@@ -113,6 +140,12 @@ async function refreshServer() {
   show('server-stop-btn', status.running);
   show('server-restart-btn', status.running);
   show('server-install-btn', !status.installed);
+
+  // The step header mirrors the server's real state, so the collapsed view
+  // still answers "is my world up?" without expanding anything.
+  flow.setNote('server', status.running ? 'Running' : status.installed ? 'Stopped' : 'Not installed');
+  flow.setState('server', status.running ? 'done' : 'active');
+  if (status.running) flow.open('server');
 
   // An uninstalled server cannot start. Offering Start as an equally weighted
   // primary button next to Install meant the leftmost, most obvious action was
